@@ -1,4 +1,4 @@
-ARG FROM=debian:buster-slim
+ARG FROM=ubuntu:20.04
 FROM ${FROM}
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -16,36 +16,41 @@ ENV GITHUB_ACCESS_TOKEN=""
 ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
 
 # Labels.
-LABEL maintainer="me@tcardonne.fr" \
+LABEL maintainer="ops@posos.fr" \
     org.label-schema.schema-version="1.0" \
     org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.name="tcardonne/github-runner" \
+    org.label-schema.name="posos-tech/github-runner" \
     org.label-schema.description="Dockerized GitHub Actions runner." \
-    org.label-schema.url="https://github.com/tcardonne/docker-github-runner" \
-    org.label-schema.vcs-url="https://github.com/tcardonne/docker-github-runner" \
-    org.label-schema.vendor="Thomas Cardonne" \
-    org.label-schema.docker.cmd="docker run -it tcardonne/github-runner:latest"
+    org.label-schema.url="https://github.com/posos-tech/docker-github-runner" \
+    org.label-schema.vcs-url="https://github.com/posos-tech/docker-github-runner" \
+    org.label-schema.vendor="Posos" \
+    org.label-schema.docker.cmd="docker run -it posos-tech/github-runner:latest"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install -y \
-        curl \
-        unzip \
-        apt-transport-https \
-        ca-certificates \
-        software-properties-common \
-        sudo \
-        supervisor \
-        jq \
-        iputils-ping \
-        build-essential \
-        zlib1g-dev \
-        gettext \
-        liblttng-ust0 \
-        libcurl4-openssl-dev \
-        openssh-client && \
+    unzip \
+    apt-transport-https \
+    ca-certificates \
+    software-properties-common \
+    sudo \
+    supervisor \
+    jq \
+    iputils-ping \
+    build-essential \
+    zlib1g-dev \
+    gettext \
+    liblttng-ust0 \
+    libcurl4-openssl-dev \
+    openssh-client \
+    gnupg && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
+
+# Install NodeJS
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash && \
+    apt-get install -y nodejs
+RUN npm install -g yarn
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod 644 /etc/supervisor/conf.d/supervisord.conf
